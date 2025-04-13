@@ -1,0 +1,63 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js"></script>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <input type="email" id="email" placeholder="Enter your email" required><br>
+        <input type="password" id="password" placeholder="Enter your password" required><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Login user
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Check credentials in Firebase
+            db.ref('users').orderByChild('email').equalTo(email).once('value', function(snapshot) {
+                if (snapshot.exists()) {
+                    const user = snapshot.val();
+                    const userId = Object.keys(user)[0];
+                    const storedPassword = user[userId].password;
+
+                    if (storedPassword === password) {
+                        localStorage.setItem('userId', userId); // Store user ID in localStorage
+                        window.location.href = 'dashboard.html'; // Redirect to dashboard
+                    } else {
+                        alert("Wrong credentials! Try again.");
+                    }
+                } else {
+                    alert("Wrong credentials! Try again.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
